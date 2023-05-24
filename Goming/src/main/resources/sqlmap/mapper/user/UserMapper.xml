@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bside.BSIDE.user.persistence.UserMapper">
+	
+	<!-- 이메일 검증 -->
+	<select id="getUserByEmail" resultType="com.bside.BSIDE.user.domain.UserDto">
+		SELECT * FROM bside.user WHERE eml = #{email}
+	</select>
+	
+	<update id="updateUser" parameterType="com.bside.BSIDE.user.domain.UserDto">
+		UPDATE bside.user 
+		SET 
+			usr_nm=#{usrNm},
+			password=#{password},
+			gndr_cls_cd=#{gndrClsCd},
+			brdt=#{brdt},
+			update_dtm=now()
+		WHERE 
+			eml=#{email}
+	</update>
+	
+	<delete id="deleteUser" parameterType = "String">
+		DELETE FROM bside.user 
+		WHERE eml = #{email}
+	</delete>
+	
+	<select id="getUserByEmailPw" resultType="com.bside.BSIDE.user.domain.UserDto">
+    	SELECT * FROM bside.user WHERE eml = #{email} AND password = #{password}
+	</select>
+	
+	<update id="saveTemporaryPassword" parameterType="com.bside.BSIDE.user.domain.UserDto">
+		UPDATE bside.user 
+		SET
+			password=#{password},
+			update_dtm=NOW()
+		WHERE 
+			eml=#{email}
+	</update>
+	
+</mapper>

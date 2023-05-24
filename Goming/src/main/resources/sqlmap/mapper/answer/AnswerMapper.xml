@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="com.bside.BSIDE.contents.persistence.AnswerMapper">
+
+	<!-- 선택된 질문 보관 -->
+	<insert id="selectedQuestion" parameterType="com.bside.BSIDE.contents.domain.AnswerDto">
+        INSERT INTO answer(q_no, a_answer_content, a_check, a_writer)
+        VALUES(#{qNo}, " ", false, #{aWriter})
+    </insert>
+	
+	<!-- 답변되지 않은 질문 조회 -->
+	<!-- getUnansweredAnswers -->
+	<select id="getUnansweredAnswers" resultMap="answerResultMap">
+	    SELECT *
+	    FROM answer
+	    WHERE a_check = false
+	    AND DATE(a_created_at) = DATE(NOW())
+	</select>
+	
+	<!-- 질문에 대한 답변 저장 -->
+	<update id="saveAnswer" parameterType="com.bside.BSIDE.contents.domain.AnswerDto">
+	    UPDATE answer
+	    SET a_answer_content = #{aAnswerContent}, a_check = true, a_writer = #{aWriter}
+	    WHERE q_no = #{qNo}
+	</update>
+	
+	<resultMap id="answerResultMap" type="com.bside.BSIDE.contents.domain.AnswerDto">
+		<id property="aNo" column="a_no"/>
+		<result property="qNo" column="q_no"/>
+		<result property="aAnswerContent" column="a_answer_content"/>
+		<result property="aWriter" column="a_writer"/>
+		<result property="aCheck" column="a_check"/>
+	</resultMap>
+	
+</mapper>

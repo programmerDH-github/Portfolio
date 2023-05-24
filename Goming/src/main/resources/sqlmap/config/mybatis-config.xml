@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- Copyright 2010-2012 The MyBatis Team Licensed under the Apache License,
+	Version 2.0 (the "License"); you may not use this file except in compliance
+	with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+
+<!--
+ mybatis-config.xml 문서의 구조는 반드시 다음과 같아야한다. 순서가 틀리면 오류가 난다.
+	properties
+	settings  :  런타임시 마이바티스의 행위를 조정하기 위한 중요한 값을 설정한다.
+	typeAliases  :  타입 별칭은 자바 타입에 대한 짧은 이름이다. 오직 XML 설정에서만 사용되며, 타이핑을 줄이기 위해 존재한다.
+	typeHandlers : 마이바티스가 PreparedStatement에 파라미터를 설정하고 ResultSet에서 값을 가져올때마다 TypeHandler는 적절한 자바 타입의 값을 가져오기 위해 사용된다.
+	objectFactory : 매번 마이바티스는 결과 객체의 인스턴스를 만들기 위해 ObjectFactory를 사용한다. 디폴트 ObjectFactory 는 디폴트 생성자를 가진 대상 클래스를 인스턴스화하는 것보다 조금 더 많은 작업을 한다
+	plugins  :  마이바티스는 매핑 구문을 실행하는 어떤 시점에 호출을 가로챈다. 기본적으로 마이바티스는 메소드 호출을 가로채기 위한 플러그인을 허용한다.
+	environments  :  마이바티스는 여러개의 환경으로 설정할 수 있다. 여러가지 이유로 여러개의 데이터베이스에 SQL Map을 적용하는데 도움이 된다.
+	environment
+	transactionManager
+	dataSource
+	databaseIdProvider : 마이바티스는 데이터베이스 제품마다 다른 구문을 실행할 수 있다
+	mappers : Mapper XML 파일을 정의한다. 즉, 매핑된 SQL 구문을  클래스패스의 상대경로의 리소스로 사용하는 Mapper XML 파일을 정의한다.
+ -->
+
+<!-- 스프링과 동일 -->
+<!-- version: $Id$ -->
+<configuration>
+    <settings>
+        <setting name="cacheEnabled" value="false" />  <!-- 설정에서 각 매퍼에 설정된 캐시를 전역적으로 사용할지 말지에 대한 여부(디폴트:true) -->
+        <setting name="useGeneratedKeys" value="false" />  <!--생성키에 대한 JDBC 지원을 허용. 지원하는 드라이버가 필요하다. true로 설정하면 생성키를 강제로 생성한다. 일부 드라이버(예를들면, Derby)에서는 이 설정을 무시한다. (디폴트:false)  -->
+        <setting name="defaultExecutorType" value="REUSE" /> <!-- 디폴트 실행자(executor) 설정. SIMPLE 실행자는 특별히 하는 것이 없다. REUSE 실행자는 PreparedStatement를 재사용한다. BATCH 실행자는 구문을 재사용하고 수정을 배치처리한다.(디폴트:SIMPLE) -->
+        <setting name="callSettersOnNulls"  value="true"/> <!-- 가져온 값이 null일때 setter나 맵의 put 메소드를 호출할지를 명시 Map.keySet() 이나 null값을 초기화할때 유용하다. int, boolean 등과 같은 원시타입은 null을 설정할 수 없다는 점은 알아두면 좋다. -->
+        <setting name="jdbcTypeForNull" value="NULL"/><!-- JDBC타입을 파라미터에 제공하지 않을때 null값을 처리한 JDBC타입을 명시한다. 일부 드라이버는 칼럼의 JDBC타입을 정의하도록 요구하지만 대부분은 NULL, VARCHAR 나 OTHER 처럼 일반적인 값을 사용해서 동작한다.(디폴트:OTHER) -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+</configuration>

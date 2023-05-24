@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="com.bside.BSIDE.contents.persistence.QuestionMapper">
+	
+	<!-- 질문 저장 -->
+	<insert id="insertQuestion" parameterType="com.bside.BSIDE.contents.domain.QuestionDto">
+		INSERT INTO
+			bside.question(
+			q_category,
+			q_writer,
+			q_created_at
+		)
+		VALUES(
+				  #{category},
+				  #{qWriter},
+				  now()
+			  )
+	</insert>
+
+	<!--  질문 리스트 조회 -->
+	<select id="getQuestionByCategory" resultType="com.bside.BSIDE.contents.domain.QuestionDto" parameterType="string">
+		SELECT Q.q_no as qNo, Q.q_question as qQuestion
+		FROM bside.question Q 
+		LEFT OUTER JOIN bside.answer A ON Q.q_no = A.q_no
+		WHERE A.q_no IS NULL AND Q.q_category = #{category}
+		ORDER BY RAND() LIMIT 4;
+	</select>
+	
+	<!-- qNo에 해당하는 질문 조회 -->
+	<select id="getQuestionByPNO" resultType="com.bside.BSIDE.contents.domain.QuestionDto" parameterType="int">
+	    SELECT q_no as qNo, q_question as qQuestion
+	    FROM bside.question
+	    WHERE q_no = #{pNo}
+	</select>	
+	
+	<!-- 금일 잔여 답변 개수 조회 -->
+	<select id="countUnansweredQuestions" resultType="int">
+		SELECT 3-COUNT(*) 
+		FROM bside.question 
+		WHERE q_no NOT IN (SELECT q_no FROM bside.answer) 
+		AND YEAR(q_created_at) = YEAR(CURRENT_DATE()) 
+		AND MONTH(q_created_at) = MONTH(CURRENT_DATE()) 
+		AND DAY(q_created_at) = DAY(CURRENT_DATE());
+    </select>
+    
+    <!-- 이번달에 답변한 질문 개수 조회 -->
+    <select id="countAnsweredQuestionsThisMonth" resultType="int">
+	    SELECT COUNT(*) FROM bside.question q
+	    INNER JOIN bside.answer a ON q.q_no = a.q_no
+	    WHERE YEAR(a.a_created_at) = YEAR(CURRENT_DATE())
+	    AND MONTH(a.a_created_at) = MONTH(CURRENT_DATE())
+	</select>
+	
+	<!-- 오늘 답변한 질문 개수 조회 -->
+    <select id="countAnsweredQuestionsToday" resultType="int">
+	    SELECT COUNT(*) FROM bside.question q
+	    INNER JOIN bside.answer a ON q.q_no = a.q_no
+	    WHERE YEAR(a.a_created_at) = YEAR(CURRENT_DATE())
+	    AND MONTH(a.a_created_at) = MONTH(CURRENT_DATE())
+	    AND DAY(a.a_created_at) = DAY(CURRENT_DATE())
+	</select>
+    
+    <!-- 선택한 월에 답변한 질문 개수 조회 -->
+	<select id="countAnsweredQuestionsByMonth" resultType="java.lang.Integer">
+	    SELECT COUNT(*) 
+	    FROM bside.answer a
+	    LEFT OUTER JOIN bside.question q ON a.q_no = q.q_no
+	    WHERE q.q_no IS NOT NULL 
+	    AND YEAR(a.a_created_at) = #{year}
+	    AND MONTH(a.a_created_at) = #{month}
+	</select>
+	
+</mapper>
