@@ -1,0 +1,84 @@
+#서버 설정
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      timeout: 45m
+      tracking-modes: cookie
+      
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+    
+    
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: goming.team@gmail.com
+    password: srvxdrufxzvgobcb
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher 
+    hiddenmethod:
+     filter:
+       enabled: true
+    view:
+      prefix: /jsp
+      suffix: .jsp   
+  # 존재하지 않는 api 요청 처리
+    throw-exception-if-no-handler-found: true
+  datasource: 
+    url: jdbc:mysql://maindb1.cfo6y4wckmkk.ap-northeast-2.rds.amazonaws.com:3306/BSIDE?characterEncoding=UTF-8&serverTimezone=UTC&useSSL=true
+    username: bside
+    password: Go!ming42*
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: Go!donghun84*
+
+mybatis: 
+  mapper-locations: classpath:sqlmap/mapper/**/*.xml
+  
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+      springframework:
+        web: debug
+        
+jwt:
+  secretkey: 4oCYbGVhLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtbmZ0LXNwcmluZy1ib290LWp3dC10dXRvcmlhbOKAmQo=
+  refreshKey: c3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwtc3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwtc3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwK

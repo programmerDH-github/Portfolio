@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="com.bside.BSIDE.contents.persistence.QuestionMapper">
+	
+	<!-- 질문 저장 -->
+	<insert id="insertQuestion" parameterType="com.bside.BSIDE.contents.domain.QuestionDto">
+		INSERT INTO
+			BSIDE.question(
+			q_category,
+			q_writer,
+			q_question,
+			q_created_at
+		)
+		VALUES(
+				  #{qCategory},
+				  #{qWriter},
+		       	  #{qQuestion},
+				  now()
+			  )
+	</insert>
+
+	<!--  질문 리스트 조회 -->
+	<select id="getQuestionByCategory" resultType="com.bside.BSIDE.contents.domain.QuestionDto" parameterType="string">
+		SELECT Q.q_no as qNo, Q.q_question as qQuestion, Q.q_category as qCategory, Q.q_writer as qWriter, Q.q_created_at as qCreatedAt
+		FROM BSIDE.question Q 
+		LEFT OUTER JOIN BSIDE.answer A ON Q.q_no = A.q_no
+		WHERE A.q_no IS NULL AND Q.q_category = #{category}
+		ORDER BY RAND() LIMIT 4;
+	</select>
+	
+	<!-- qNo에 해당하는 질문 조회 -->
+	<select id="getQuestionByPNO" resultType="com.bside.BSIDE.contents.domain.QuestionDto" parameterType="int">
+	    SELECT q_no as qNo, q_question as qQuestion
+	    FROM BSIDE.question
+	    WHERE q_no = #{pNo}
+	</select>	
+	
+	<!-- 금일 잔여 답변 개수 조회 -->
+	<select id="countUnansweredQuestions" resultType="int">
+		SELECT COUNT(*) 
+		FROM BSIDE.answer 
+		WHERE a_check = false 
+		AND YEAR(a_created_at) = YEAR(CURRENT_DATE()) 
+		AND MONTH(a_created_at) = MONTH(CURRENT_DATE()) 
+		AND DAY(a_created_at) = DAY(CURRENT_DATE())
+		AND a_writer = #{writer}
+    </select>
+    
+    <!-- 금일 넘긴 답변 개수 조회 -->
+    <select id="countPassQuestions" resultType="int">
+		SELECT COUNT(*) 
+		FROM BSIDE.answer 
+		WHERE a_check = true
+		AND CHAR_LENGTH(a_answer_content) = 0
+		AND YEAR(a_created_at) = YEAR(CURRENT_DATE()) 
+		AND MONTH(a_created_at) = MONTH(CURRENT_DATE()) 
+		AND DAY(a_created_at) = DAY(CURRENT_DATE())
+		AND a_writer = #{writer}
+    </select>
+    
+    <!-- 이번달에 답변한 질문 개수 조회 -->
+    <select id="countAnsweredQuestionsThisMonth" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM BSIDE.question q
+	    INNER JOIN BSIDE.answer a ON q.q_no = a.q_no
+	    WHERE YEAR(a.a_created_at) = YEAR(CURRENT_DATE())
+	    AND CHAR_LENGTH(a_answer_content) >= 1
+	    AND MONTH(a.a_created_at) = MONTH(CURRENT_DATE())
+	    AND a.a_writer = #{writer}
+	</select>
+	
+	<!-- 오늘 답변한 질문 개수 조회 -->
+    <select id="countAnsweredQuestionsToday" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM BSIDE.question q
+	    INNER JOIN BSIDE.answer a ON q.q_no = a.q_no
+	    WHERE CHAR_LENGTH(a.a_answer_content) >= 1
+	    AND YEAR(a.a_created_at) = YEAR(CURRENT_DATE())
+	    AND MONTH(a.a_created_at) = MONTH(CURRENT_DATE())
+	    AND DAY(a.a_created_at) = DAY(CURRENT_DATE())
+	    AND a.a_writer = #{writer}
+	</select>
+    
+    <!-- 선택한 월에 답변한 질문 개수 조회 -->
+	<select id="countAnsweredQuestionsByMonth" resultType="com.bside.BSIDE.contents.domain.CountAnsweredQuestionsByMonthDto">
+	    SELECT COUNT(*) AS count, #{email} AS email, CONCAT(#{year}, '-', #{month}) AS date 
+	    FROM BSIDE.answer a
+	    LEFT OUTER JOIN BSIDE.question q ON a.q_no = q.q_no
+	    WHERE q.q_no IS NOT NULL
+	    AND a.a_check = TRUE
+	    AND CHAR_LENGTH(a_answer_content) >= 1
+	    AND YEAR(a.a_created_at) = #{year}
+	    AND MONTH(a.a_created_at) = #{month}
+	    AND a.a_writer = #{email} 
+	</select>
+	
+	<!-- 선택한 일에 답변한 질문 개수 조회 -->
+	<select id="countAnsweredQuestionsByDay" resultType="int">
+	    SELECT COUNT(*) AS count
+	    FROM BSIDE.answer a
+	    LEFT OUTER JOIN BSIDE.question q ON a.q_no = q.q_no
+	    WHERE q.q_no IS NOT NULL
+	    AND a.a_check = TRUE
+	    AND CHAR_LENGTH(a_answer_content) >= 1
+	    AND YEAR(a.a_created_at) = YEAR(#{date})
+	    AND MONTH(a.a_created_at) = MONTH(#{date})
+	    AND DAY(a.a_created_at) = DAY(#{date})
+	    AND a.a_writer = #{email}
+	</select>
+	
+	<!-- 선택한 월에 답변한 개수를 일별로 조회 -->
+	<select id="countAnsweredDatesInMonth" resultType="com.bside.BSIDE.contents.domain.QuestionCountDto">
+	    SELECT COUNT(*) AS count, Date(a.a_created_at) AS date
+	    FROM BSIDE.answer a
+	    LEFT OUTER JOIN BSIDE.question q ON a.q_no = q.q_no
+	    WHERE q.q_no IS NOT NULL
+	    AND a.a_check = TRUE
+	    AND CHAR_LENGTH(a_answer_content) >= 1
+	    AND YEAR(a.a_created_at) = YEAR(#{date})
+	    AND MONTH(a.a_created_at) = MONTH(#{date})
+	    AND a.a_writer = #{email}	    
+	    GROUP BY(DATE(a.a_created_at))
+	</select>
+	
+	<!-- 선택한 년,월에 답변한 질문 조회 -->
+	<select id="getQuestionsAndAnswersByMonthAndEmail" resultType="com.bside.BSIDE.contents.domain.QuestionAndAnswerDto">    
+        SELECT q.q_question AS question, a.a_answer_content AS answer, DATE(a.a_created_at) AS date, q.q_category AS category
+	    FROM BSIDE.answer a
+	    INNER JOIN BSIDE.question q ON a.q_no = q.q_no
+	    WHERE a.a_writer = #{email}
+	    AND a.a_check = TRUE
+	    AND CHAR_LENGTH(a_answer_content) >= 1
+	    AND YEAR(a.a_created_at) = YEAR(#{date})
+	    AND MONTH(a.a_created_at) = MONTH(#{date})
+	</select>
+    
+    <!-- 선택한 년,월,일에 답변한 질문 조회 -->
+    <select id="getQuestionsAndAnswersByDayAndEmail" resultType="com.bside.BSIDE.contents.domain.QuestionAndAnswerDto">
+        SELECT q.q_question AS question, a.a_answer_content AS answer, DATE(a.a_created_at) AS date, q.q_category AS category
+        FROM BSIDE.answer a
+        INNER JOIN BSIDE.question q ON a.q_no = q.q_no
+        WHERE a.a_writer = #{email}
+        AND a.a_check = TRUE
+		AND CHAR_LENGTH(a_answer_content) >= 1
+        AND YEAR(a.a_created_at) = YEAR(#{date}) 
+        AND MONTH(a.a_created_at) = MONTH(#{date})
+        AND DAY(a.a_created_at) = DAY(#{date})
+    </select>
+
+	<!-- 질문 리스트 조회 -->
+	<select id="selectListQuestion" resultType="com.bside.BSIDE.contents.domain.QuestionDto">
+		SELECT q_no AS qNo, q_question AS qQuestion, q_category AS qCategory, q_writer AS qWriter, q_created_at AS qCreatedAt
+		FROM BSIDE.question
+		ORDER BY q_created_at DESC
+	</select>
+	
+	<!-- 질문 리스트 수정 -->
+	<update id="updateQuestion" parameterType="com.bside.BSIDE.contents.domain.QuestionDto">
+		UPDATE BSIDE.question
+		SET q_question = #{qQuestion}, q_category = #{qCategory}, q_writer = #{qWriter}
+		WHERE q_no = #{qNo}
+	</update>
+	
+	<!-- 질문 리스트 삭제 -->
+	<delete id="deleteQuestion" parameterType="int">
+		DELETE FROM BSIDE.question
+		WHERE q_no = #{qNo}
+	</delete>
+
+</mapper>

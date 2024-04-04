@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="com.bside.BSIDE.contents.persistence.AnswerMapper">
+
+	<!-- 선택된 질문 보관 -->
+	<insert id="selectedQuestion" parameterType="com.bside.BSIDE.contents.domain.AnswerDto">
+        INSERT INTO BSIDE.answer(q_no, a_answer_content, a_check, a_writer)
+        VALUES(#{qNo}, '', false, #{aWriter})
+    </insert>
+	
+	<!-- 답변되지 않은 질문 조회 -->
+	<!-- getUnansweredAnswers -->
+	<select id="getUnansweredAnswers" resultMap="answerResultMap">
+	    SELECT *
+	    FROM BSIDE.answer
+	    WHERE a_check = false
+	    AND DATE(a_created_at) = DATE(NOW())
+	</select>
+	
+	<!-- 질문에 대한 답변 저장 -->
+	<update id="saveAnswer" parameterType="com.bside.BSIDE.contents.domain.AnswerDto">
+	    UPDATE BSIDE.answer
+	    SET a_answer_content = #{aAnswerContent}, a_check = true
+	    WHERE q_no = #{qNo} AND a_writer = #{aWriter}
+	</update>
+	
+	<!-- 질문 답변하지 않고 넘기기 -->
+	<update id="passAnswer" parameterType="com.bside.BSIDE.contents.domain.AnswerDto">
+	    UPDATE BSIDE.answer
+	    SET a_check = true
+	    WHERE q_no = #{qNo} AND a_writer = #{email}
+	</update>
+	
+	<!-- 답변하지 않은 질문 삭제 -->
+	<delete id="deleteUnanswer">
+        DELETE FROM BSIDE.answer WHERE a_check = false
+    </delete>
+	
+	<resultMap id="answerResultMap" type="com.bside.BSIDE.contents.domain.AnswerDto">
+		<id property="aNo" column="a_no"/>
+		<result property="qNo" column="q_no"/>
+		<result property="aAnswerContent" column="a_answer_content"/>
+		<result property="aWriter" column="a_writer"/>
+		<result property="aCheck" column="a_check"/>
+	</resultMap>
+	
+</mapper>

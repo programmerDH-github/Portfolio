@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="com.bside.BSIDE.contents.persistence.CategoryMapper">
+
+	<!--  답변한 카테고리를 제외한 카테고리 랜덤 조회 -->
+	<select id="getRandomCategory" resultType="com.bside.BSIDE.contents.domain.CategoryDto" parameterType="String">
+		SELECT c.category_id as categoryId, c.category_name as categoryName
+		FROM BSIDE.category c
+		LEFT JOIN BSIDE.user_category uc ON c.category_id = uc.category_id AND uc.email = #{email}
+		WHERE uc.category_id IS NULL
+		ORDER BY RAND() LIMIT 1
+	</select>
+	
+	<select id="selectCaterogyCount" resultType="int">
+		SELECT COUNT(*) 
+	    FROM BSIDE.user_category
+	    WHERE YEAR(created_at) = YEAR(CURRENT_DATE())
+	    AND MONTH(created_at) = MONTH(CURRENT_DATE())
+	    AND DAY(created_at) = DAY(CURRENT_DATE())
+	    AND email = #{email}
+	</select>
+	
+	<!--  답변한 카테고리를 제외한 카테고리 랜덤 조회 -->
+	<select id="getCategory" resultType="com.bside.BSIDE.contents.domain.CategoryDto" parameterType="String">
+		SELECT c.category_id as categoryId, c.category_name as categoryName
+		FROM BSIDE.category c
+		WHERE c.category_name = #{category}
+	</select>
+	
+</mapper>
